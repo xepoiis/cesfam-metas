@@ -9,3 +9,9 @@ class UsuarioCreate(BaseModel):
 class UsuarioLogin(BaseModel):
     rut: str
     password: str
+
+class PIVCreate(BaseModel):
+    mes: str
+    anio: int
+    parametro: str
+    valor_obtenido: float
