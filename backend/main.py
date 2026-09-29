@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException
+import io
+import openpyxl
+from fastapi import FastAPI, Depends, HTTPException, File, UploadFile, Form
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 import bcrypt
@@ -80,34 +82,21 @@ def registrar_piv(datos: schemas.PIVCreate, db: Session = Depends(get_db), usuar
     if usuario_actual.get("rol") not in ["Gestor", "Director"]:
         raise HTTPException(status_code=403, detail="No tienes permisos para ingresar datos PIV")
     
-    nuevo_registro = models.TablaPIV(
-        mes=datos.mes,
-        anio=datos.anio,
-        parametro=datos.parametro,
-        valor_obtenido=datos.valor_obtenido
-    )
+    nuevo_registro = models.TablaPIV(mes=datos.mes, anio=datos.anio, parametro=datos.parametro, valor_obtenido=datos.valor_obtenido)
     db.add(nuevo_registro)
     db.commit()
     db.refresh(nuevo_registro)
-    
-    return {
-        "mensaje": "Dato PIV ingresado correctamente",
-        "parametro": nuevo_registro.parametro,
-        "registrado_por": usuario_actual["sub"]
-    }
+    return {"mensaje": "Dato PIV ingresado correctamente", "parametro": nuevo_registro.parametro, "registrado_por": usuario_actual["sub"]}
 
 @app.post("/extrasistema/")
 def registrar_extrasistema(datos: schemas.ExtrasistemaCreate, db: Session = Depends(get_db), usuario_actual: dict = Depends(verificar_token)):
     if usuario_actual.get("rol") not in ["Gestor", "Director"]:
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
-    nuevo_registro = models.TablaExtrasistema(
-        mes=datos.mes, anio=datos.anio, meta_asociada=datos.meta_asociada, cantidad_atenciones=datos.cantidad_atenciones
-    )
+    nuevo_registro = models.TablaExtrasistema(mes=datos.mes, anio=datos.anio, meta_asociada=datos.meta_asociada, cantidad_atenciones=datos.cantidad_atenciones)
     db.add(nuevo_registro)
     db.commit()
     db.refresh(nuevo_registro)
-    
     return {"mensaje": "Dato de Extrasistema ingresado", "meta": nuevo_registro.meta_asociada}
 
 @app.post("/continuidad/")
@@ -115,11 +104,63 @@ def registrar_continuidad(datos: schemas.ContinuidadCreate, db: Session = Depend
     if usuario_actual.get("rol") not in ["Gestor", "Director"]:
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
-    nuevo_registro = models.TablaContinuidad(
-        mes=datos.mes, anio=datos.anio, porcentaje_obtenido=datos.porcentaje_obtenido
-    )
+    nuevo_registro = models.TablaContinuidad(mes=datos.mes, anio=datos.anio, porcentaje_obtenido=datos.porcentaje_obtenido)
     db.add(nuevo_registro)
     db.commit()
     db.refresh(nuevo_registro)
-    
     return {"mensaje": "Porcentaje de Continuidad ingresado", "porcentaje": nuevo_registro.porcentaje_obtenido}
+
+@app.post("/cargar-rem/")
+async def procesar_archivo_rem(
+    mes: str = Form(...), 
+    anio: int = Form(...), 
+    hoja_excel: str = Form(...),
+    celdas_extraer: str = Form(...),
+    archivo: UploadFile = File(...), 
+    db: Session = Depends(get_db), 
+    usuario_actual: dict = Depends(verificar_token)
+):
+    if usuario_actual.get("rol") not in ["Gestor", "Director"]:
+        raise HTTPException(status_code=403, detail="No tienes permisos para cargar el REM")
+    
+    if not archivo.filename.endswith(('.xls', '.xlsx', '.xlsm')):
+        raise HTTPException(status_code=400, detail="El archivo debe ser un Excel")
+    
+    contenido_archivo = await archivo.read()
+    
+    try:
+        wb = openpyxl.load_workbook(io.BytesIO(contenido_archivo), data_only=True)
+        
+        if hoja_excel not in wb.sheetnames:
+            raise HTTPException(status_code=400, detail=f"El archivo no tiene la hoja '{hoja_excel}'")
+        
+        hoja = wb[hoja_excel]
+        
+        lista_celdas = [celda.strip() for celda in celdas_extraer.split(',')]
+        resultados = []
+        
+        for celda in lista_celdas:
+            valor_celda = hoja[celda].value
+            valor_final = int(valor_celda) if valor_celda is not None else 0
+            
+            nuevo_dato = models.TablaREM(
+                mes=mes,
+                anio=anio,
+                hoja_excel=hoja_excel,
+                celda_referencia=celda,
+                valor_obtenido=valor_final
+            )
+            db.add(nuevo_dato)
+            resultados.append({"celda": celda, "valor": valor_final})
+            
+        db.commit()
+
+        return {
+            "mensaje": "Archivo REM procesado y datos extraídos",
+            "archivo": archivo.filename,
+            "hoja_procesada": hoja_excel,
+            "datos_guardados": resultados
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al procesar el Excel: {str(e)}")

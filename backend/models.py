@@ -35,3 +35,13 @@ class TablaContinuidad(Base):
     mes = Column(String(20), nullable=False)
     anio = Column(Integer, nullable=False)
     porcentaje_obtenido = Column(Numeric(5, 2), nullable=False)
+
+class TablaREM(Base):
+    __tablename__ = "trn_rem_mensual"
+    
+    id_rem = Column(Integer, primary_key=True, index=True)
+    mes = Column(String(20), nullable=False)
+    anio = Column(Integer, nullable=False)
+    hoja_excel = Column(String(50), nullable=False)
+    celda_referencia = Column(String(50), nullable=False)
+    valor_obtenido = Column(Integer, nullable=False)
