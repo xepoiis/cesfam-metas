@@ -14,7 +14,7 @@ class Usuario(Base):
     __tablename__ = "trn_usuario"
     
     id_usuario = Column(Integer, primary_key=True, index=True)
-    rut = Column(String(12), unique=True, index=True, nullable=False) # Ej: 12345678-9
+    rut = Column(String(12), unique=True, index=True, nullable=False)
     nombre = Column(String(100), nullable=False)
-    rol = Column(String(50), nullable=False) # Roles: Director, Subdirector, Gestor
-    password_hash = Column(String(255), nullable=False) # Nunca guardaremos la clave en texto plano
+    rol = Column(String(50), nullable=False)
+    password_hash = Column(String(255), nullable=False)
