@@ -95,3 +95,31 @@ def registrar_piv(datos: schemas.PIVCreate, db: Session = Depends(get_db), usuar
         "parametro": nuevo_registro.parametro,
         "registrado_por": usuario_actual["sub"]
     }
+
+@app.post("/extrasistema/")
+def registrar_extrasistema(datos: schemas.ExtrasistemaCreate, db: Session = Depends(get_db), usuario_actual: dict = Depends(verificar_token)):
+    if usuario_actual.get("rol") not in ["Gestor", "Director"]:
+        raise HTTPException(status_code=403, detail="No tienes permisos")
+    
+    nuevo_registro = models.TablaExtrasistema(
+        mes=datos.mes, anio=datos.anio, meta_asociada=datos.meta_asociada, cantidad_atenciones=datos.cantidad_atenciones
+    )
+    db.add(nuevo_registro)
+    db.commit()
+    db.refresh(nuevo_registro)
+    
+    return {"mensaje": "Dato de Extrasistema ingresado", "meta": nuevo_registro.meta_asociada}
+
+@app.post("/continuidad/")
+def registrar_continuidad(datos: schemas.ContinuidadCreate, db: Session = Depends(get_db), usuario_actual: dict = Depends(verificar_token)):
+    if usuario_actual.get("rol") not in ["Gestor", "Director"]:
+        raise HTTPException(status_code=403, detail="No tienes permisos")
+    
+    nuevo_registro = models.TablaContinuidad(
+        mes=datos.mes, anio=datos.anio, porcentaje_obtenido=datos.porcentaje_obtenido
+    )
+    db.add(nuevo_registro)
+    db.commit()
+    db.refresh(nuevo_registro)
+    
+    return {"mensaje": "Porcentaje de Continuidad ingresado", "porcentaje": nuevo_registro.porcentaje_obtenido}

@@ -15,3 +15,14 @@ class PIVCreate(BaseModel):
     anio: int
     parametro: str
     valor_obtenido: float
+
+class ExtrasistemaCreate(BaseModel):
+    mes: str
+    anio: int
+    meta_asociada: str
+    cantidad_atenciones: int
+
+class ContinuidadCreate(BaseModel):
+    mes: str
+    anio: int
+    porcentaje_obtenido: float

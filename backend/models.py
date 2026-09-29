@@ -18,3 +18,20 @@ class Usuario(Base):
     nombre = Column(String(100), nullable=False)
     rol = Column(String(50), nullable=False)
     password_hash = Column(String(255), nullable=False)
+
+class TablaExtrasistema(Base):
+    __tablename__ = "trn_extrasistema"
+    
+    id_extra = Column(Integer, primary_key=True, index=True)
+    mes = Column(String(20), nullable=False)
+    anio = Column(Integer, nullable=False)
+    meta_asociada = Column(String(100), nullable=False)
+    cantidad_atenciones = Column(Integer, nullable=False)
+
+class TablaContinuidad(Base):
+    __tablename__ = "trn_continuidad_iaaps"
+    
+    id_cont = Column(Integer, primary_key=True, index=True)
+    mes = Column(String(20), nullable=False)
+    anio = Column(Integer, nullable=False)
+    porcentaje_obtenido = Column(Numeric(5, 2), nullable=False)
