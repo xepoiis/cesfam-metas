@@ -164,3 +164,69 @@ async def procesar_archivo_rem(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al procesar el Excel: {str(e)}")
+
+@app.get("/rem/{mes}/{anio}")
+def obtener_datos_rem(mes: str, anio: int, db: Session = Depends(get_db), usuario_actual: dict = Depends(verificar_token)):
+    datos_rem = db.query(models.TablaREM).filter(
+        models.TablaREM.mes == mes,
+        models.TablaREM.anio == anio
+    ).all()
+    
+    if not datos_rem:
+        raise HTTPException(status_code=404, detail="No se encontraron registros para esta fecha")
+        
+    return {
+        "mes": mes,
+        "anio": anio,
+        "total_registros": len(datos_rem),
+        "datos": datos_rem
+    }
+
+@app.get("/piv/{mes}/{anio}")
+def obtener_datos_piv(mes: str, anio: int, db: Session = Depends(get_db), usuario_actual: dict = Depends(verificar_token)):
+    datos = db.query(models.TablaPIV).filter(models.TablaPIV.mes == mes, models.TablaPIV.anio == anio).all()
+    return {"mes": mes, "anio": anio, "total_registros": len(datos), "datos": datos}
+
+@app.get("/extrasistema/{mes}/{anio}")
+def obtener_datos_extrasistema(mes: str, anio: int, db: Session = Depends(get_db), usuario_actual: dict = Depends(verificar_token)):
+    datos = db.query(models.TablaExtrasistema).filter(models.TablaExtrasistema.mes == mes, models.TablaExtrasistema.anio == anio).all()
+    return {"mes": mes, "anio": anio, "total_registros": len(datos), "datos": datos}
+
+@app.get("/continuidad/{mes}/{anio}")
+def obtener_datos_continuidad(mes: str, anio: int, db: Session = Depends(get_db), usuario_actual: dict = Depends(verificar_token)):
+    datos = db.query(models.TablaContinuidad).filter(models.TablaContinuidad.mes == mes, models.TablaContinuidad.anio == anio).all()
+    return {"mes": mes, "anio": anio, "total_registros": len(datos), "datos": datos}
+
+@app.get("/reportes/generales/{mes}/{anio}")
+def generar_reporte_general(mes: str, anio: int, db: Session = Depends(get_db), usuario_actual: dict = Depends(verificar_token)):
+    datos_rem = db.query(models.TablaREM).filter(models.TablaREM.mes == mes, models.TablaREM.anio == anio).all()
+    datos_piv = db.query(models.TablaPIV).filter(models.TablaPIV.mes == mes, models.TablaPIV.anio == anio).all()
+    datos_extrasistema = db.query(models.TablaExtrasistema).filter(models.TablaExtrasistema.mes == mes, models.TablaExtrasistema.anio == anio).all()
+    datos_continuidad = db.query(models.TablaContinuidad).filter(models.TablaContinuidad.mes == mes, models.TablaContinuidad.anio == anio).all()
+    
+    reporte_consolidado = {
+        "periodo": f"{mes} {anio}",
+        "solicitado_por": usuario_actual["sub"],
+        "resumen_operativo": {
+            "total_extracciones_rem": len(datos_rem),
+            "parametros_piv_cargados": len(datos_piv)
+        },
+        "iaaps": {
+            "continuidad_atencion": [
+                {"mes": d.mes, "porcentaje": d.porcentaje_obtenido} for d in datos_continuidad
+            ],
+            "denominadores_piv": [
+                {"parametro": d.parametro, "valor": d.valor_obtenido} for d in datos_piv
+            ]
+        },
+        "metas_sanitarias": {
+            "aportes_extrasistema": [
+                {"meta": d.meta_asociada, "atenciones_sumadas": d.cantidad_atenciones} for d in datos_extrasistema
+            ],
+            "extracciones_rem": [
+                {"hoja": d.hoja_excel, "celda": d.celda_referencia, "valor": d.valor_obtenido} for d in datos_rem
+            ]
+        }
+    }
+    
+    return reporte_consolidado
