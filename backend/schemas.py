@@ -1,10 +1,17 @@
 from pydantic import BaseModel
+from enum import Enum
+
+class RolUsuario(str, Enum):
+    directora = "Directora"
+    subdireccion = "Subdirección"
+    gestor = "GDI"
+    jefe = "Jefe de Programa"
 
 class UsuarioCreate(BaseModel):
     rut: str
     nombre: str
-    rol: str
     password: str
+    rol: RolUsuario
 
 class UsuarioLogin(BaseModel):
     rut: str
