@@ -64,12 +64,18 @@ def iniciar_sesion(credenciales: schemas.UsuarioLogin, db: Session = Depends(get
     usuario = db.query(models.Usuario).filter(models.Usuario.rut == credenciales.rut).first()
     if not usuario:
         raise HTTPException(status_code=401, detail="RUT o contraseña incorrectos")
+        
+    if not usuario.activo:
+        raise HTTPException(status_code=403, detail="Este usuario ha sido desactivado del sistema")
     
     password_ingresada_bytes = credenciales.password.encode('utf-8')
     password_guardada_bytes = usuario.password_hash.encode('utf-8')
     
     if not bcrypt.checkpw(password_ingresada_bytes, password_guardada_bytes):
         raise HTTPException(status_code=401, detail="RUT o contraseña incorrectos")
+        
+    usuario.ultimo_acceso = datetime.now(timezone.utc)
+    db.commit()
         
     expiracion = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     datos_token = {"sub": usuario.rut, "rol": usuario.rol, "exp": expiracion}

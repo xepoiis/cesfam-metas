@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Numeric
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric
+from datetime import datetime, timezone
 from database import Base
 
 class TablaPIV(Base):
@@ -18,6 +19,9 @@ class Usuario(Base):
     nombre = Column(String(100), nullable=False)
     rol = Column(String(50), nullable=False)
     password_hash = Column(String(255), nullable=False)
+    activo = Column(Boolean, default=True, nullable=False)
+    fecha_creacion = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    ultimo_acceso = Column(DateTime, nullable=True)
 
 class TablaExtrasistema(Base):
     __tablename__ = "trn_extrasistema"
