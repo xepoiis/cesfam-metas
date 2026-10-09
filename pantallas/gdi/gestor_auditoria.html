@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Auditoría - Gestor</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f4f7f6; display: flex; }
+        .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; padding-top: 20px; }
+        .sidebar h3 { text-align: center; border-bottom: 1px solid #34495e; padding-bottom: 15px; margin: 0; }
+        .sidebar a { display: block; padding: 15px 20px; color: #bdc3c7; text-decoration: none; border-bottom: 1px solid #34495e; }
+        .sidebar .active { background: #34495e; color: white; border-left: 4px solid #9b59b6; }
+        .content { flex-grow: 1; padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 14px; }
+        th { background: #2c3e50; color: white; }
+        .json-box { background: #f8f9fa; padding: 8px; font-family: monospace; border: 1px solid #eee; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Gestor de Sistema</h3>
+        <a href="gestor_parametros.html">Mapeo OOTT (Fórmulas)</a>
+        <a href="gestor_usuarios.html">Gestión de Usuarios</a>
+        <a href="gestor_auditoria.html" class="active">Logs de Auditoría</a>
+    </div>
+    <div class="content">
+        <h2>Registro de Transacciones y Trazabilidad (Log)</h2>
+        <p>Historial inmutable de cambios estructurales según RN-03.</p>
+        <div class="card">
+            <table>
+                <tr><th>ID Transacción</th><th>Fecha y Hora</th><th>Usuario Ejecutor</th><th>Acción / Tabla</th><th>Payload JSON (Detalle)</th></tr>
+                <tr>
+                    <td>TRX-0985</td>
+                    <td>09-10-2026 15:30</td>
+                    <td>11.222.333-4 (Gestor)</td>
+                    <td>UPDATE cfg_parametros</td>
+                    <td><div class="json-box">{"indicador":"Var_Num_01", "old_celda":"J25", "new_celda":"J26"}</div></td>
+                </tr>
+                <tr>
+                    <td>TRX-0986</td>
+                    <td>09-10-2026 16:15</td>
+                    <td>18.111.222-K (Gestor)</td>
+                    <td>UPDATE sys_usuarios</td>
+                    <td><div class="json-box">{"rut":"18.765.432-1", "estado_previo":true, "nuevo_estado":false}</div></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

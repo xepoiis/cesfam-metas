@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Dirección</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f4f7f6; display: flex; }
+        .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; padding-top: 20px; }
+        .sidebar h3 { text-align: center; border-bottom: 1px solid #34495e; padding-bottom: 15px; margin: 0; }
+        .sidebar a { display: block; padding: 15px 20px; color: #bdc3c7; text-decoration: none; border-bottom: 1px solid #34495e; }
+        .sidebar .active { background: #34495e; color: white; border-left: 4px solid #3498db; }
+        .content { flex-grow: 1; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; margin-left: 10px;}
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Menu Directora</h3>
+        <a href="#" class="active">Dashboard Consolidado</a>
+        <a href="#">Reportes Comparativos (Años)</a>
+        <a href="#">Salir</a>
+    </div>
+    <div class="content">
+        <div class="header">
+            <h2>Cumplimiento Global IAAPS - 2026</h2>
+            <div>
+                <button class="btn" style="background:#27ae60;" onclick="alert('Generando archivo .xlsx desde el servidor...')">Exportar Excel</button>
+                <button class="btn" style="background:#c0392b;" onclick="alert('Generando PDF del Dashboard...')">Descargar PDF</button>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h3 style="margin-top:0;">IAAPS Acumulado al Corte</h3>
+                <canvas id="chartDoughnut"></canvas>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0;">Cumplimiento por Programas</h3>
+                <canvas id="chartBar"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        new Chart(document.getElementById('chartDoughnut').getContext('2d'), {
+            type: 'doughnut',
+            data: { labels: ['Logrado', 'Brecha'], datasets: [{ data: [82, 18], backgroundColor: ['#27ae60', '#e74c3c'] }] }
+        });
+        new Chart(document.getElementById('chartBar').getContext('2d'), {
+            type: 'bar',
+            data: { labels: ['Cardiovascular', 'Infantil', 'Odontológico', 'Salud Mujer'], datasets: [{ label: '% Cumplimiento', data: [85, 92, 65, 78], backgroundColor: '#3498db' }] },
+            options: { scales: { y: { max: 100 } } }
+        });
+    </script>
+</body>
+</html>

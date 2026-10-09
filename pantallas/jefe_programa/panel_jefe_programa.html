@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Programa</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f4f7f6; display: flex; }
+        .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; padding-top: 20px; }
+        .sidebar h3 { text-align: center; border-bottom: 1px solid #34495e; padding-bottom: 15px; margin: 0; }
+        .sidebar a { display: block; padding: 15px 20px; color: #bdc3c7; text-decoration: none; border-bottom: 1px solid #34495e; }
+        .sidebar .active { background: #34495e; color: white; border-left: 4px solid #f1c40f; }
+        .content { flex-grow: 1; padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Jefe de Programa</h3>
+        <a href="#" class="active">Indicadores: Cardiovascular</a>
+        <a href="#">Salir</a>
+    </div>
+    <div class="content">
+        <h2 style="margin-top:0;">Metas Programa Cardiovascular</h2>
+        <div class="card" style="height: 250px;">
+            <canvas id="lineChart"></canvas>
+        </div>
+        <div class="card">
+            <h3 style="margin-top:0;">Tabla de Evaluaciones Mensuales</h3>
+            <button style="padding: 8px 15px; background: #27ae60; color: white; border: none; cursor: pointer;" onclick="alert('Exportando métricas específicas de este programa...')">Exportar a Excel</button>
+            <table>
+                <tr><th>Mes</th><th>Numerador (Logrado)</th><th>Denominador (Total PIV)</th><th>Resultado (%)</th><th>Exigencia OOTT</th></tr>
+                <tr><td>Marzo</td><td>100</td><td>200</td><td>50.0%</td><td>40.0%</td></tr>
+                <tr><td>Junio</td><td>125</td><td>210</td><td>59.5%</td><td>50.0%</td></tr>
+                <tr><td>Septiembre</td><td>160</td><td>220</td><td>72.7%</td><td>65.0%</td></tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        new Chart(document.getElementById('lineChart').getContext('2d'), {
+            type: 'line',
+            data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep'], datasets: [{ label: 'Evolución Compensados %', data: [35, 42, 50, 52, 55, 59.5, 62, 68, 72.7], borderColor: '#e67e22', fill: false }] },
+            options: { maintainAspectRatio: false }
+        });
+    </script>
+</body>
+</html>
