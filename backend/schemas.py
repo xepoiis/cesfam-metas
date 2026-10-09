@@ -3,7 +3,7 @@ from enum import Enum
 
 class RolUsuario(str, Enum):
     directora = "Directora"
-    subdireccion = "Subdirección"
+    subdireccion = "Subdireccion"
     gestor = "GDI"
     jefe = "Jefe de Programa"
 
